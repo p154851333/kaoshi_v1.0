@@ -1,0 +1,152 @@
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+IF NOT EXISTS (SELECT * FROM sys.objects WHERE object_id = OBJECT_ID(N'[dbo].[tb_Lesson]') AND type in (N'U'))
+BEGIN
+CREATE TABLE [dbo].[tb_Lesson](
+	[ID] [bigint] IDENTITY(1,1) NOT NULL,
+	[Name] [varchar](60) NOT NULL,
+	[JoinTime] [datetime] NOT NULL CONSTRAINT [DF_tb_Lesson_JoinTime]  DEFAULT (getdate()),
+ CONSTRAINT [PK_tb_Lesson] PRIMARY KEY CLUSTERED 
+(
+	[ID] ASC
+)WITH (IGNORE_DUP_KEY = OFF) ON [PRIMARY]
+) ON [PRIMARY]
+END
+GO
+
+IF NOT EXISTS (SELECT * FROM sys.indexes WHERE object_id = OBJECT_ID(N'[dbo].[tb_Lesson]') AND name = N'IX_tb_Lesson')
+CREATE NONCLUSTERED INDEX [IX_tb_Lesson] ON [dbo].[tb_Lesson] 
+(
+	[Name] ASC
+)WITH (IGNORE_DUP_KEY = OFF) ON [PRIMARY]
+GO
+
+IF NOT EXISTS (SELECT * FROM sys.indexes WHERE object_id = OBJECT_ID(N'[dbo].[tb_Lesson]') AND name = N'IX_tb_Lesson_1')
+CREATE UNIQUE NONCLUSTERED INDEX [IX_tb_Lesson_1] ON [dbo].[tb_Lesson] 
+(
+	[Name] ASC
+)WITH (IGNORE_DUP_KEY = OFF) ON [PRIMARY]
+GO
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+IF NOT EXISTS (SELECT * FROM sys.objects WHERE object_id = OBJECT_ID(N'[dbo].[tb_manager]') AND type in (N'U'))
+BEGIN
+CREATE TABLE [dbo].[tb_manager](
+	[ID] [bigint] IDENTITY(1,1) NOT NULL,
+	[name] [varchar](30) NOT NULL,
+	[PWD] [varchar](30) NOT NULL,
+ CONSTRAINT [PK_tb_Administrator] PRIMARY KEY CLUSTERED 
+(
+	[ID] ASC
+)WITH (IGNORE_DUP_KEY = OFF) ON [PRIMARY]
+) ON [PRIMARY]
+END
+GO
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+IF NOT EXISTS (SELECT * FROM sys.objects WHERE object_id = OBJECT_ID(N'[dbo].[tb_Student]') AND type in (N'U'))
+BEGIN
+CREATE TABLE [dbo].[tb_Student](
+	[ID] [varchar](16) NOT NULL,
+	[name] [varchar](20) NOT NULL,
+	[pwd] [varchar](20) NOT NULL,
+	[sex] [varchar](2) NOT NULL,
+	[joinTime] [datetime] NOT NULL CONSTRAINT [DF_tb_student_JoinTime]  DEFAULT (getdate()),
+	[question] [varchar](50) NOT NULL,
+	[answer] [varchar](50) NOT NULL,
+	[profession] [varchar](30) NULL,
+	[cardNo] [varchar](18) NOT NULL,
+ CONSTRAINT [PK_tb_Student] PRIMARY KEY CLUSTERED 
+(
+	[ID] ASC
+)WITH (IGNORE_DUP_KEY = OFF) ON [PRIMARY]
+) ON [PRIMARY]
+END
+GO
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+IF NOT EXISTS (SELECT * FROM sys.objects WHERE object_id = OBJECT_ID(N'[dbo].[tb_StuResult]') AND type in (N'U'))
+BEGIN
+CREATE TABLE [dbo].[tb_StuResult](
+	[id] [bigint] IDENTITY(1,1) NOT NULL,
+	[stuId] [varchar](16) NOT NULL,
+	[whichLesson] [varchar](60) NOT NULL,
+	[resSingle] [int] NOT NULL,
+	[resMore] [int] NOT NULL,
+	[resTotal]  AS ([resSingle] + [resMore]),
+	[joinTime] [datetime] NOT NULL CONSTRAINT [DF_tb_StuResult_res_subdate]  DEFAULT (getdate()),
+ CONSTRAINT [PK_tb_StuResult] PRIMARY KEY CLUSTERED 
+(
+	[id] ASC
+)WITH (IGNORE_DUP_KEY = OFF) ON [PRIMARY]
+) ON [PRIMARY]
+END
+GO
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+IF NOT EXISTS (SELECT * FROM sys.objects WHERE object_id = OBJECT_ID(N'[dbo].[tb_TaoTi]') AND type in (N'U'))
+BEGIN
+CREATE TABLE [dbo].[tb_TaoTi](
+	[ID] [bigint] IDENTITY(1,1) NOT NULL,
+	[Name] [varchar](50) NOT NULL,
+	[LessonID] [bigint] NOT NULL,
+	[JoinTime] [datetime] NOT NULL CONSTRAINT [DF_tb_TaoTi_JoinTime]  DEFAULT (getdate()),
+ CONSTRAINT [PK_tb_TaoTi] PRIMARY KEY CLUSTERED 
+(
+	[ID] ASC
+)WITH (IGNORE_DUP_KEY = OFF) ON [PRIMARY]
+) ON [PRIMARY]
+END
+GO
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+IF NOT EXISTS (SELECT * FROM sys.objects WHERE object_id = OBJECT_ID(N'[dbo].[tb_Questions]') AND type in (N'U'))
+BEGIN
+CREATE TABLE [dbo].[tb_Questions](
+	[id] [bigint] IDENTITY(1,1) NOT NULL,
+	[subject] [varchar](50) NOT NULL,
+	[type] [char](6) NOT NULL,
+	[joinTime] [datetime] NOT NULL CONSTRAINT [DF_tb_Questions_que_joindate]  DEFAULT (getdate()),
+	[lessonId] [int] NOT NULL,
+	[taoTiId] [bigint] NOT NULL,
+	[optionA] [varchar](50) NOT NULL,
+	[optionB] [varchar](50) NOT NULL,
+	[optionC] [varchar](50) NOT NULL,
+	[optionD] [varchar](50) NOT NULL,
+	[answer] [varchar](10) NOT NULL,
+	[note] [varchar](50) NULL,
+ CONSTRAINT [PK_tb_Questions] PRIMARY KEY CLUSTERED 
+(
+	[id] ASC
+)WITH (IGNORE_DUP_KEY = OFF) ON [PRIMARY]
+) ON [PRIMARY]
+END
+GO
+IF NOT EXISTS (SELECT * FROM sys.foreign_keys WHERE object_id = OBJECT_ID(N'[dbo].[FK_tb_StuResult_tb_Lesson]') AND parent_object_id = OBJECT_ID(N'[dbo].[tb_StuResult]'))
+ALTER TABLE [dbo].[tb_StuResult]  WITH CHECK ADD  CONSTRAINT [FK_tb_StuResult_tb_Lesson] FOREIGN KEY([whichLesson])
+REFERENCES [dbo].[tb_Lesson] ([Name])
+ON UPDATE CASCADE
+GO
+IF NOT EXISTS (SELECT * FROM sys.foreign_keys WHERE object_id = OBJECT_ID(N'[dbo].[FK_tb_StuResult_tb_Student]') AND parent_object_id = OBJECT_ID(N'[dbo].[tb_StuResult]'))
+ALTER TABLE [dbo].[tb_StuResult]  WITH CHECK ADD  CONSTRAINT [FK_tb_StuResult_tb_Student] FOREIGN KEY([stuId])
+REFERENCES [dbo].[tb_Student] ([ID])
+GO
+IF NOT EXISTS (SELECT * FROM sys.foreign_keys WHERE object_id = OBJECT_ID(N'[dbo].[FK_tb_TaoTi_tb_Lesson]') AND parent_object_id = OBJECT_ID(N'[dbo].[tb_TaoTi]'))
+ALTER TABLE [dbo].[tb_TaoTi]  WITH CHECK ADD  CONSTRAINT [FK_tb_TaoTi_tb_Lesson] FOREIGN KEY([LessonID])
+REFERENCES [dbo].[tb_Lesson] ([ID])
+GO
+IF NOT EXISTS (SELECT * FROM sys.foreign_keys WHERE object_id = OBJECT_ID(N'[dbo].[FK_tb_Questions_tb_TaoTi]') AND parent_object_id = OBJECT_ID(N'[dbo].[tb_Questions]'))
+ALTER TABLE [dbo].[tb_Questions]  WITH CHECK ADD  CONSTRAINT [FK_tb_Questions_tb_TaoTi] FOREIGN KEY([taoTiId])
+REFERENCES [dbo].[tb_TaoTi] ([ID])
